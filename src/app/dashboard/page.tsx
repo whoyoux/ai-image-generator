@@ -3,7 +3,6 @@ import prisma from "@/lib/db";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
@@ -12,7 +11,6 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import Link from "next/link";
 import CopyButton from "./copy-button";
 import ShareButton from "./share-button";
 

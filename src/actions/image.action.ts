@@ -6,10 +6,10 @@ import prisma from "@/lib/db";
 import { PromptSchema } from "@/schemas";
 import { z } from "zod";
 
+import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 import sharp from "sharp";
 import { UTApi } from "uploadthing/server";
-import { FileEsque } from "uploadthing/types";
 
 const openai = new OpenAI();
 const utapi = new UTApi();
@@ -96,10 +96,12 @@ export const generateImage = async (
 					})
 					.toBuffer();
 
-				console.log("Finished compressing image. Uploading image.");
+				console.log("Finished compressing image.");
+
+				console.log("Uploading image.");
 
 				const blob = new Blob([compressedImageBuffer]);
-				const file = new File([blob], `img-${user.id}-${Date.now()}.png`);
+				const file = new File([blob], `img-${user.id}-${nanoid()}.png`);
 
 				const response = await utapi.uploadFiles(file, {
 					metadata: {
