@@ -1,8 +1,7 @@
 "use client";
 
-import { validateRequest } from "@/lib/auth";
-import React, { useTransition } from "react";
-import { Input } from "./ui/input";
+import { useState, useTransition } from "react";
+
 import { Textarea } from "./ui/textarea";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,7 +36,7 @@ export const runtime = "edge";
 
 const Generator = () => {
 	const [isPending, startTransition] = useTransition();
-	const [result, setResult] = React.useState<Awaited<
+	const [result, setResult] = useState<Awaited<
 		ReturnType<typeof generateImage>
 	> | null>(null);
 

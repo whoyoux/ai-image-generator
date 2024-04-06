@@ -9,6 +9,12 @@ import { cookies } from "next/headers";
 import { Argon2id } from "oslo/password";
 
 import prisma from "@/lib/db";
+import { TimeSpan, createDate, isWithinExpirationDate } from "oslo";
+
+import { getBaseUrl } from "@/lib/utils";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const signUp = async (values: z.infer<typeof SignUpSchema>) => {
 	const parsed = SignUpSchema.safeParse(values);
@@ -23,7 +29,14 @@ export const signUp = async (values: z.infer<typeof SignUpSchema>) => {
 
 		const existingUser = await prisma.user.findFirst({
 			where: {
-				username: parsed.data.username,
+				OR: [
+					{
+						username: parsed.data.username,
+					},
+					{
+						email: parsed.data.email,
+					},
+				],
 			},
 		});
 
@@ -34,22 +47,25 @@ export const signUp = async (values: z.infer<typeof SignUpSchema>) => {
 		await prisma.user.create({
 			data: {
 				id: userId,
+				email: parsed.data.email,
 				username: parsed.data.username,
 				hashedPassword,
 			},
 		});
 
-		const session = await lucia.createSession(userId, {
-			expiresIn: 60 * 60 * 24 * 30,
-		});
-
-		const sessionCookie = lucia.createSessionCookie(session.id);
-
-		cookies().set(
-			sessionCookie.name,
-			sessionCookie.value,
-			sessionCookie.attributes,
+		const verificationToken = await createEmailVerificationToken(
+			userId,
+			parsed.data.email,
 		);
+
+		const verificationLink = `${getBaseUrl()}/email-verification/${verificationToken}`;
+
+		await resend.emails.send({
+			from: "AI Image Generator <noreply@whxtest.pl>",
+			to: [parsed.data.email],
+			subject: "Verify your email address - AI Image Generator",
+			html: `Please click this link to verify your email address: <a href="${verificationLink}">activate your account</a>`,
+		});
 
 		return {
 			success: true,
@@ -80,6 +96,10 @@ export const signIn = async (values: z.infer<typeof SignInSchema>) => {
 
 	if (!existingUser) {
 		throw new Error("User does not exist");
+	}
+
+	if (!existingUser.emailVerified) {
+		throw new Error("Email not verified. Please verify your email.");
 	}
 
 	const isValidPassword = await new Argon2id().verify(
@@ -134,3 +154,96 @@ export const signOut = async () => {
 		);
 	}
 };
+
+export const verifyEmail = async (token: string) => {
+	if (!token) {
+		return {
+			success: false,
+			message: "Invalid token",
+		};
+	}
+
+	return await prisma.$transaction(async (tx) => {
+		const foundToken = await tx.emailVerificationToken.findUnique({
+			where: {
+				id: token,
+			},
+		});
+
+		if (!foundToken) {
+			return {
+				success: false,
+				message: "Invalid token",
+			};
+		}
+
+		await tx.emailVerificationToken.delete({
+			where: {
+				id: token,
+			},
+		});
+
+		if (!isWithinExpirationDate(foundToken.expiresAt)) {
+			return {
+				success: false,
+				message: "Token expired.",
+			};
+		}
+
+		const user = await tx.user.findUnique({
+			where: {
+				id: foundToken.userId,
+			},
+		});
+
+		if (!user) {
+			return {
+				success: false,
+				message: "User not found",
+			};
+		}
+
+		await lucia.invalidateUserSessions(user.id);
+
+		await tx.user.update({
+			where: {
+				id: user.id,
+			},
+			data: {
+				emailVerified: true,
+			},
+		});
+
+		return {
+			success: true,
+			message: "Email verified. You can sign in.",
+		};
+	});
+};
+
+export async function createEmailVerificationToken(
+	userId: string,
+	email: string,
+): Promise<string> {
+	// optionally invalidate all existing tokens
+	await prisma.emailVerificationToken.deleteMany({
+		where: {
+			userId,
+		},
+	});
+	const tokenId = generateId(40);
+
+	await prisma.emailVerificationToken.create({
+		data: {
+			id: tokenId,
+			email,
+			expiresAt: createDate(new TimeSpan(2, "h")),
+			user: {
+				connect: {
+					id: userId,
+				},
+			},
+		},
+	});
+	return tokenId;
+}

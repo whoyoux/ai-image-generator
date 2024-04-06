@@ -93,6 +93,7 @@ export const generateImage = async (
 					.withMetadata()
 					.png({
 						quality: 100,
+						compressionLevel: 9,
 					})
 					.toBuffer();
 
@@ -129,6 +130,7 @@ export const generateImage = async (
 							create: {
 								imageUrl: response.data.url,
 								prompt: parsed.data.prompt,
+								style: parsed.data.style,
 								revisedPrompt:
 									image.data[0].revised_prompt ?? parsed.data.prompt,
 							},

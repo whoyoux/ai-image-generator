@@ -32,7 +32,7 @@ const Dashboard = async () => {
 			<h1 className="text-2xl font-semibold">Dashboard</h1>
 			<div className="flex flex-col gap-2">
 				<h2 className="text-xl font-medium">Your generated images:</h2>
-				<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:flex lg:flex-row lg:ml-0 mx-auto gap-2">
+				<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:flex lg:flex-wrap lg:ml-0 mx-auto gap-2">
 					{images.map((image) => (
 						<div key={image.id}>
 							<Dialog>
@@ -42,7 +42,7 @@ const Dashboard = async () => {
 										alt={image.revisedPrompt}
 										width={200}
 										height={200}
-										className="rounded-lg"
+										className="rounded-lg bg-card border cursor-pointer"
 										sizes="200px"
 									/>
 								</DialogTrigger>

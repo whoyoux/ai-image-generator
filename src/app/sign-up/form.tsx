@@ -35,11 +35,12 @@ const SignUpForm = () => {
 		try {
 			const res = await signUp(values);
 			if (res.success) {
-				toast.success("Sign up successful");
+				toast.success("Sign up successful. Please verify your email.");
 				router.push("/");
 			}
 		} catch (err) {
-			alert(err);
+			// alert(err);
+			toast.error(String(err));
 		}
 	}
 	return (
@@ -51,12 +52,25 @@ const SignUpForm = () => {
 				<h2 className="text-xl font-semibold">Sign up</h2>
 				<FormField
 					control={form.control}
+					name="email"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Email</FormLabel>
+							<FormControl>
+								<Input placeholder="jan.kowalski@gmail.com" {...field} />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
 					name="username"
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Username</FormLabel>
 							<FormControl>
-								<Input placeholder="shadcn" {...field} />
+								<Input placeholder="jan.kowalski" {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>

@@ -40,7 +40,8 @@ const SignInForm = () => {
 				router.push("/");
 			}
 		} catch (err) {
-			alert(err);
+			// alert(err);
+			toast.error(String(err));
 		}
 	}
 	return (

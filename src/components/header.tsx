@@ -49,7 +49,7 @@ const UserDropdown = ({ username }: { username: string }) => {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button>{username}</Button>
+				<Button variant="outline">{username}</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="w-56">
 				<DropdownMenuLabel>My Account</DropdownMenuLabel>

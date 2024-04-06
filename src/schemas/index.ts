@@ -2,12 +2,23 @@ import { z } from "zod";
 
 export const SignUpSchema = z
 	.object({
-		username: z.string().min(4, { message: "Minimum 4 characters!" }).max(20),
-		password: z.string().min(8, { message: "Minimum 8 characters!" }).max(100),
+		email: z
+			.string()
+			.email({ message: "Invalid email!" })
+			.min(4, { message: "Minimum 4 characters!" })
+			.max(100, { message: "Maximum 20 characters!" }),
+		username: z
+			.string()
+			.min(4, { message: "Minimum 4 characters!" })
+			.max(20, { message: "Maximum 20 characters!" }),
+		password: z
+			.string()
+			.min(8, { message: "Minimum 8 characters!" })
+			.max(100, { message: "Maximum 100 characters!" }),
 		confirmPassword: z
 			.string()
 			.min(8, { message: "Minimum 8 characters!" })
-			.max(100),
+			.max(100, { message: "Maximum 100 characters!" }),
 	})
 	.refine((data) => data.password === data.confirmPassword, {
 		message: "Passwords do not match",
@@ -15,8 +26,14 @@ export const SignUpSchema = z
 	});
 
 export const SignInSchema = z.object({
-	username: z.string().min(4, { message: "Minimum 4 characters!" }).max(20),
-	password: z.string().min(8, { message: "Minimum 8 characters!" }).max(100),
+	username: z
+		.string()
+		.min(4, { message: "Minimum 4 characters!" })
+		.max(20, { message: "Maximum 20 characters!" }),
+	password: z
+		.string()
+		.min(8, { message: "Minimum 8 characters!" })
+		.max(100, { message: "Maximum 100 characters!" }),
 });
 
 export const StyleEnum = z.enum([
@@ -47,6 +64,9 @@ export const StyleEnum = z.enum([
 ]);
 
 export const PromptSchema = z.object({
-	prompt: z.string().min(1).max(1000),
+	prompt: z
+		.string()
+		.min(4, { message: "Minimum 4 characters!" })
+		.max(1000, { message: "Maximum 1000 characters!" }),
 	style: StyleEnum,
 });

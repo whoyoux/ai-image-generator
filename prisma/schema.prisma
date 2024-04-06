@@ -12,26 +12,41 @@ model Session {
   userId    String
   expiresAt DateTime
   user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
-  expiresIn Int
+  expiresIn Int?
 }
 
 model User {
-  id             String    @id
-  sessions       Session[]
+  id       String    @id
+  sessions Session[]
+
+  email         String  @unique
+  emailVerified Boolean @default(false) @map("email_verified")
+
   username       String
-  hashedPassword String    @map("hashed_password")
+  hashedPassword String @map("hashed_password")
 
-  credits Int @default(5)
+  credits Int     @default(5)
+  images  Image[]
 
-  images Image[]
+  emailVerificationTokens EmailVerificationToken[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 }
 
+model EmailVerificationToken {
+  id        String   @id
+  email     String
+  expiresAt DateTime @map("expires_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+}
+
 model Image {
   id            String @id @default(cuid())
   label         String @default("Image")
+  style         String @default("Style default")
   imageUrl      String
   prompt        String
   revisedPrompt String @map("revised_prompt")
