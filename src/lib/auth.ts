@@ -63,4 +63,6 @@ declare module "lucia" {
 interface DatabaseUserAttributes {
 	username: string;
 	credits: number;
+	stripeCustomerId: string;
+	email: string;
 }

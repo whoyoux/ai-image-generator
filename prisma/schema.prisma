@@ -15,6 +15,12 @@ model Session {
   expiresIn Int?
 }
 
+enum PLANS {
+  BASIC
+  MEDIUM
+  PRO
+}
+
 model User {
   id       String    @id
   sessions Session[]
@@ -30,8 +36,30 @@ model User {
 
   emailVerificationTokens EmailVerificationToken[]
 
+  orders           Order[]
+  stripeCustomerId String  @unique @map("stripe_customer_id")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+model Order {
+  id String @id @default(cuid())
+
+  user User @relation(fields: [userId], references: [id])
+
+  plan PLANS
+
+  paid   Boolean   @default(false)
+  paidAt DateTime? @map("paid_at")
+
+  canceled   Boolean   @default(false)
+  canceledAt DateTime? @map("canceled_at")
+  canceledBy String?   @map("canceled_by")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  userId    String
 }
 
 model EmailVerificationToken {

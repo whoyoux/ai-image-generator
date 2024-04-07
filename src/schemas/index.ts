@@ -1,3 +1,4 @@
+import { PLANS } from "@prisma/client";
 import { z } from "zod";
 
 export const SignUpSchema = z
@@ -69,4 +70,8 @@ export const PromptSchema = z.object({
 		.min(4, { message: "Minimum 4 characters!" })
 		.max(1000, { message: "Maximum 1000 characters!" }),
 	style: StyleEnum,
+});
+
+export const checkoutSchema = z.object({
+	plan: z.nativeEnum(PLANS),
 });

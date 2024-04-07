@@ -28,10 +28,12 @@ const Header = async () => {
 			<div className="flex items-center gap-4">
 				{user ? (
 					<div className="flex items-center gap-4">
-						<p className="hidden md:block text-sm text-muted-foreground">
-							You have <span className="text-primary">{user.credits}</span>{" "}
-							credits left
-						</p>
+						<Link href="/billing">
+							<p className="hidden md:block text-sm text-muted-foreground hover:underline underline-offset-4">
+								You have <span className="text-primary">{user.credits}</span>{" "}
+								credits left
+							</p>
+						</Link>
 						<UserDropdown username={user.username} />
 					</div>
 				) : (
@@ -62,11 +64,13 @@ const UserDropdown = ({ username }: { username: string }) => {
 							<DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
 						</DropdownMenuItem>
 					</Link>
-					<DropdownMenuItem>
-						<CreditCard className="mr-2 h-4 w-4" />
-						<span>Billing</span>
-						<DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-					</DropdownMenuItem>
+					<Link href="/billing">
+						<DropdownMenuItem>
+							<CreditCard className="mr-2 h-4 w-4" />
+							<span>Billing</span>
+							<DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+						</DropdownMenuItem>
+					</Link>
 					<DropdownMenuItem>
 						<Settings className="mr-2 h-4 w-4" />
 						<span>Settings</span>

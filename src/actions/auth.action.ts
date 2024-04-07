@@ -11,10 +11,9 @@ import { Argon2id } from "oslo/password";
 import prisma from "@/lib/db";
 import { TimeSpan, createDate, isWithinExpirationDate } from "oslo";
 
+import { resend } from "@/lib/resend";
+import { addStripeCustomer } from "@/lib/stripe";
 import { getBaseUrl } from "@/lib/utils";
-import { Resend } from "resend";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const signUp = async (values: z.infer<typeof SignUpSchema>) => {
 	const parsed = SignUpSchema.safeParse(values);
@@ -44,12 +43,17 @@ export const signUp = async (values: z.infer<typeof SignUpSchema>) => {
 			throw new Error("User already exists");
 		}
 
+		const stripeCustomer = await addStripeCustomer({
+			email: parsed.data.email,
+		});
+
 		await prisma.user.create({
 			data: {
 				id: userId,
 				email: parsed.data.email,
 				username: parsed.data.username,
 				hashedPassword,
+				stripeCustomerId: stripeCustomer.id,
 			},
 		});
 
