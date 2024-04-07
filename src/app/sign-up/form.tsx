@@ -104,6 +104,12 @@ const SignUpForm = () => {
 						</FormItem>
 					)}
 				/>
+				<p className="text-sm text-muted-foreground">
+					By creating account you accept our{" "}
+					<Link href="terms-of-service">
+						<span className="text-primary">Terms of Service</span>
+					</Link>
+				</p>
 				<Button type="submit">Sign up</Button>
 				<div className="flex items-center">
 					You have an account?

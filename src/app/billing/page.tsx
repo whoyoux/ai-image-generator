@@ -21,7 +21,7 @@ const BillingPage = async () => {
 					label="10 credits"
 					cost={2}
 					description="Starter pack"
-					items={["1 User", "1 Project", "Community Support"]}
+					items={["Full rights to generated images", "Email support"]}
 					active={isLoggedIn}
 					plan={PLANS.BASIC}
 				/>
@@ -29,7 +29,11 @@ const BillingPage = async () => {
 					label="30 credits"
 					cost={5}
 					description="Professional"
-					items={["1 User", "1 Project", "Community Support"]}
+					items={[
+						"Everything from Starter Pack",
+						"High priority support",
+						"More credits",
+					]}
 					active={isLoggedIn}
 					plan={PLANS.MEDIUM}
 				/>
@@ -37,7 +41,11 @@ const BillingPage = async () => {
 					label="70 credits"
 					cost={10}
 					description="Above and beyond"
-					items={["1 User", "1 Project", "Community Support"]}
+					items={[
+						"Everything from Professional Pack",
+						"Even higher priority support",
+						"Even more credits",
+					]}
 					active={isLoggedIn}
 					plan={PLANS.PRO}
 				/>
@@ -77,7 +85,7 @@ const Card = ({
 				</div>
 			</div>
 
-			<div className="flex flex-col gap-2 p-4">
+			<div className="flex flex-col gap-2 p-4 flex-1">
 				<ul className="grid gap-2 text-sm text-gray-500 divide-y dark:text-gray-400">
 					{items.map((item) => (
 						<li className="flex items-center py-2" key={item}>
