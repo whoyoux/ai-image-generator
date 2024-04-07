@@ -6,7 +6,6 @@ import { getBaseUrl } from "@/lib/utils";
 import { checkoutSchema } from "@/schemas";
 import { PLANS } from "@prisma/client";
 import { redirect } from "next/navigation";
-import { z } from "zod";
 
 type CheckoutResponse =
 	| {

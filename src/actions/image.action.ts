@@ -1,17 +1,16 @@
 "use server";
-import OpenAI from "openai";
-
 import { validateRequest } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { PromptSchema } from "@/schemas";
 import { z } from "zod";
 
+import { generateImageBase64 } from "@/lib/ai";
+import { getUser } from "@/lib/utils";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 import sharp from "sharp";
 import { UTApi } from "uploadthing/server";
 
-const openai = new OpenAI();
 const utapi = new UTApi();
 
 type ImageGenerationResult =
@@ -70,12 +69,11 @@ export const generateImage = async (
 
 				console.log("Started generating image.");
 
-				const image = await openai.images.generate({
-					model: "dall-e-3",
-					prompt: `Create an image of ${parsed.data.prompt} in the style of ${parsed.data.style}. Do not add things that are not in the prompt.`,
-					user: user.id,
-					response_format: "b64_json",
-				});
+				const image = await generateImageBase64(
+					user.id,
+					parsed.data.prompt,
+					parsed.data.style,
+				);
 
 				console.log("Finished generating image.");
 
@@ -85,24 +83,11 @@ export const generateImage = async (
 						message: "Failed to generate image",
 					} satisfies ImageGenerationResult;
 
-				const imgBuffer = Buffer.from(image.data[0].b64_json, "base64");
-
 				console.log("Started compressing image.");
 
-				const compressedImageBuffer = await sharp(imgBuffer)
-					.withMetadata()
-					.png({
-						quality: 100,
-						compressionLevel: 9,
-					})
-					.toBuffer();
+				const file = await compressImage(image.data[0].b64_json, user.id);
 
 				console.log("Finished compressing image.");
-
-				console.log("Uploading image.");
-
-				const blob = new Blob([compressedImageBuffer]);
-				const file = new File([blob], `img-${user.id}-${nanoid()}.png`);
 
 				const response = await utapi.uploadFiles(file, {
 					metadata: {
@@ -158,3 +143,21 @@ export const generateImage = async (
 		} satisfies ImageGenerationResult;
 	}
 };
+
+async function compressImage(
+	imageInBase64: string,
+	userId: string,
+): Promise<File> {
+	const imgBuffer = Buffer.from(imageInBase64, "base64");
+	const compressedImageBuffer = await sharp(imgBuffer)
+		.withMetadata()
+		.png({
+			quality: 100,
+			compressionLevel: 9,
+		})
+		.toBuffer();
+
+	const blob = new Blob([compressedImageBuffer]);
+	const file = new File([blob], `img-${userId}-${nanoid()}.png`);
+	return file;
+}

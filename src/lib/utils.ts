@@ -1,6 +1,7 @@
 import { PLANS } from "@prisma/client";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import prisma from "./db";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -23,4 +24,12 @@ export function getCreditsFromPlan(plan: PLANS) {
 		default:
 			return 0;
 	}
+}
+
+export async function getUser(userId: string) {
+	return await prisma.user.findUnique({
+		where: {
+			id: userId,
+		},
+	});
 }
