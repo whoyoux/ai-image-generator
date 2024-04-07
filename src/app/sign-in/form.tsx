@@ -36,8 +36,10 @@ const SignInForm = () => {
 		try {
 			const res = await signIn(values);
 			if (res.success) {
-				toast.success("Sign in successful");
+				toast.success(res.message);
 				router.push("/");
+			} else {
+				toast.error(res.message);
 			}
 		} catch (err) {
 			// alert(err);

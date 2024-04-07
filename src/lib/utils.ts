@@ -19,7 +19,7 @@ export function getCreditsFromPlan(plan: PLANS) {
 		case PLANS.MEDIUM:
 			return 30;
 		case PLANS.PRO:
-			return 50;
+			return 70;
 		default:
 			return 0;
 	}

@@ -35,8 +35,10 @@ const SignUpForm = () => {
 		try {
 			const res = await signUp(values);
 			if (res.success) {
-				toast.success("Sign up successful. Please verify your email.");
+				toast.success(res.message);
 				router.push("/");
+			} else {
+				toast.error(res.message);
 			}
 		} catch (err) {
 			// alert(err);

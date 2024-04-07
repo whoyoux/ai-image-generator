@@ -15,12 +15,29 @@ import { resend } from "@/lib/resend";
 import { addStripeCustomer } from "@/lib/stripe";
 import { getBaseUrl } from "@/lib/utils";
 
-export const signUp = async (values: z.infer<typeof SignUpSchema>) => {
+type SignResponse =
+	| {
+			success: true;
+			message: string;
+			data: unknown;
+	  }
+	| {
+			success: false;
+			message: string;
+	  };
+
+export const signUp = async (
+	values: z.infer<typeof SignUpSchema>,
+): Promise<SignResponse> => {
 	const parsed = SignUpSchema.safeParse(values);
 
 	try {
 		if (!parsed.success) {
-			throw new Error("Invalid form values");
+			// throw new Error("Invalid form values");
+			return {
+				success: false,
+				message: "Invalid form values",
+			};
 		}
 
 		const hashedPassword = await new Argon2id().hash(values.password);
@@ -40,7 +57,11 @@ export const signUp = async (values: z.infer<typeof SignUpSchema>) => {
 		});
 
 		if (existingUser) {
-			throw new Error("User already exists");
+			// throw new Error("User already exists");
+			return {
+				success: false,
+				message: "User already exists",
+			};
 		}
 
 		const stripeCustomer = await addStripeCustomer({
@@ -73,6 +94,7 @@ export const signUp = async (values: z.infer<typeof SignUpSchema>) => {
 
 		return {
 			success: true,
+			message: "User created successfully. Please verify your email.",
 			data: {
 				userId,
 			},
@@ -80,16 +102,27 @@ export const signUp = async (values: z.infer<typeof SignUpSchema>) => {
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	} catch (err: any) {
 		console.log(err);
-		throw new Error(
-			err || "Some error occurred while signing up. Please try again later.",
-		);
+		// throw new Error(
+		// 	err || "Some error occurred while signing up. Please try again later.",
+		// );
+		return {
+			success: false,
+			message:
+				err || "Some error occurred while signing up. Please try again later.",
+		};
 	}
 };
 
-export const signIn = async (values: z.infer<typeof SignInSchema>) => {
+export const signIn = async (
+	values: z.infer<typeof SignInSchema>,
+): Promise<SignResponse> => {
 	const parsed = SignInSchema.safeParse(values);
 	if (!parsed.success) {
-		throw new Error("Invalid form values");
+		// throw new Error("Invalid form values");
+		return {
+			success: false,
+			message: "Invalid form values",
+		};
 	}
 
 	const existingUser = await prisma.user.findFirst({
@@ -99,11 +132,19 @@ export const signIn = async (values: z.infer<typeof SignInSchema>) => {
 	});
 
 	if (!existingUser) {
-		throw new Error("User does not exist");
+		// throw new Error("User does not exist");
+		return {
+			success: false,
+			message: "Invalid username or password",
+		};
 	}
 
 	if (!existingUser.emailVerified) {
-		throw new Error("Email not verified. Please verify your email.");
+		// throw new Error("Email not verified. Please verify your email.");
+		return {
+			success: false,
+			message: "Email not verified. Please verify your email.",
+		};
 	}
 
 	const isValidPassword = await new Argon2id().verify(
@@ -112,7 +153,11 @@ export const signIn = async (values: z.infer<typeof SignInSchema>) => {
 	);
 
 	if (!isValidPassword) {
-		throw new Error("Invalid username or password");
+		// throw new Error("Invalid username or password");
+		return {
+			success: false,
+			message: "Invalid username or password",
+		};
 	}
 
 	const session = await lucia.createSession(existingUser.id, {
@@ -129,6 +174,7 @@ export const signIn = async (values: z.infer<typeof SignInSchema>) => {
 
 	return {
 		success: true,
+		message: "User signed in successfully.",
 		data: {
 			userId: existingUser.id,
 		},
