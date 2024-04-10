@@ -1,7 +1,7 @@
 "use server";
 import { validateRequest } from "@/lib/auth";
 import prisma from "@/lib/db";
-import { PromptSchema } from "@/schemas";
+import { ImageGeneratorPromptSchema } from "@/schemas";
 import { z } from "zod";
 
 import { generateImageBase64 } from "@/lib/ai";
@@ -12,6 +12,8 @@ import sharp from "sharp";
 import { UTApi } from "uploadthing/server";
 
 const utapi = new UTApi();
+
+const CREDIT_PER_IMAGE_GENERATE = 1;
 
 type ImageGenerationResult =
 	| {
@@ -24,9 +26,9 @@ type ImageGenerationResult =
 	  };
 
 export const generateImage = async (
-	data: z.infer<typeof PromptSchema>,
+	data: z.infer<typeof ImageGeneratorPromptSchema>,
 ): Promise<ImageGenerationResult> => {
-	const parsed = PromptSchema.safeParse(data);
+	const parsed = ImageGeneratorPromptSchema.safeParse(data);
 
 	try {
 		if (!parsed.success) {
@@ -68,7 +70,7 @@ export const generateImage = async (
 					} satisfies ImageGenerationResult;
 				}
 
-				if (foundUser.credits < 1) {
+				if (foundUser.credits < CREDIT_PER_IMAGE_GENERATE) {
 					return {
 						success: false,
 						message: "Not enough credits",
@@ -117,7 +119,7 @@ export const generateImage = async (
 					},
 					data: {
 						credits: {
-							decrement: 1,
+							decrement: CREDIT_PER_IMAGE_GENERATE,
 						},
 						images: {
 							create: {
@@ -137,7 +139,7 @@ export const generateImage = async (
 				} satisfies ImageGenerationResult;
 			},
 			{
-				timeout: 60000,
+				timeout: 300000, // 5 minutes
 			},
 		);
 

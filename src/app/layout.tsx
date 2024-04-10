@@ -5,6 +5,7 @@ import "./globals.css";
 
 import { Toaster } from "@/components/ui/sonner";
 
+import Footer from "@/components/footer";
 import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -37,8 +38,13 @@ export default function RootLayout({
 					enableSystem
 					disableTransitionOnChange
 				>
-					<Header />
-					<main className="px-4 md:px-8">{children}</main>
+					<div className="flex flex-col min-h-screen justify-between">
+						<div className="flex flex-col">
+							<Header />
+							<main className="px-4 md:px-8">{children}</main>
+						</div>
+						<Footer />
+					</div>
 					<Toaster richColors />
 				</ThemeProvider>
 			</body>

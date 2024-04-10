@@ -64,12 +64,41 @@ export const StyleEnum = z.enum([
 	"anime",
 ]);
 
-export const PromptSchema = z.object({
+export const ImageGeneratorPromptSchema = z.object({
 	prompt: z
 		.string()
 		.min(4, { message: "Minimum 4 characters!" })
 		.max(1000, { message: "Maximum 1000 characters!" }),
 	style: StyleEnum,
+});
+
+export const SpeechVoicesEnum = z.enum([
+	"alloy",
+	"echo",
+	"fable",
+	"nova",
+	"onyx",
+	"shimmer",
+]);
+
+export const MINIMUM_SPEECH_SPEED = 0.25;
+export const MAXIMUM_SPEECH_SPEED = 4;
+
+export const SpeechGeneratorPromptSchema = z.object({
+	text: z
+		.string()
+		.min(4, { message: "Minimum 4 characters!" })
+		.max(1000, { message: "Maximum 1000 characters!" }),
+	voice: SpeechVoicesEnum,
+	speed: z
+		.number()
+		.min(MINIMUM_SPEECH_SPEED, {
+			message: "Minimum speed is 0.25",
+		})
+		.max(MAXIMUM_SPEECH_SPEED, {
+			message: "Maximum speed is 4",
+		})
+		.default(1),
 });
 
 export const checkoutSchema = z.object({

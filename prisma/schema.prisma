@@ -31,8 +31,9 @@ model User {
   username       String
   hashedPassword String @map("hashed_password")
 
-  credits Int     @default(5)
-  images  Image[]
+  credits  Int      @default(5)
+  images   Image[]
+  speeches Speech[]
 
   emailVerificationTokens EmailVerificationToken[]
 
@@ -81,6 +82,24 @@ model Image {
 
   user   User?   @relation(fields: [userId], references: [id])
   userId String?
+
+  isPublic Boolean @default(false) @map("is_public")
+
+  createdAt DateTime @default(now()) @map("created_at")
+}
+
+model Speech {
+  id        String @id @default(cuid())
+  label     String @default("Speech")
+  voice     String @default("Voice default")
+  text      String
+  speechUrl String
+  speed     Float
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  isPublic Boolean @default(false) @map("is_public")
 
   createdAt DateTime @default(now()) @map("created_at")
 }

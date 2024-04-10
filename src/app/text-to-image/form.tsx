@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 
-import { Textarea } from "./ui/textarea";
+import { Textarea } from "../../components/ui/textarea";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -29,24 +29,22 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { PromptSchema, StyleEnum } from "@/schemas";
+import { ImageGeneratorPromptSchema, StyleEnum } from "@/schemas";
 import Image from "next/image";
 import Link from "next/link";
-import LoadingSpinner from "./loading-spinner";
+import LoadingSpinner from "../../components/loading-spinner";
 
-export const runtime = "edge";
-
-const Generator = () => {
+const TextToImageForm = () => {
 	const [isPending, startTransition] = useTransition();
 	const [result, setResult] = useState<Awaited<
 		ReturnType<typeof generateImage>
 	> | null>(null);
 
-	const form = useForm<z.infer<typeof PromptSchema>>({
-		resolver: zodResolver(PromptSchema),
+	const form = useForm<z.infer<typeof ImageGeneratorPromptSchema>>({
+		resolver: zodResolver(ImageGeneratorPromptSchema),
 	});
 
-	function onSubmit(data: z.infer<typeof PromptSchema>) {
+	function onSubmit(data: z.infer<typeof ImageGeneratorPromptSchema>) {
 		setResult(null);
 
 		startTransition(async () => {
@@ -62,7 +60,7 @@ const Generator = () => {
 	}
 
 	return (
-		<div className="max-w-screen-md mx-auto">
+		<div>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 					<FormField
@@ -179,4 +177,4 @@ const Generator = () => {
 	);
 };
 
-export default Generator;
+export default TextToImageForm;
