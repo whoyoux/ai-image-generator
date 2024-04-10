@@ -2,6 +2,7 @@
 import { validateRequest } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { stripe } from "@/lib/stripe";
+import { checkRateLimit } from "@/lib/upstash";
 import { getBaseUrl } from "@/lib/utils";
 import { checkoutSchema } from "@/schemas";
 import { PLANS } from "@prisma/client";
@@ -41,6 +42,14 @@ export const checkout = async (
 		return {
 			success: false,
 			message: "Invalid form data",
+		};
+	}
+
+	const isNotLimited = await checkRateLimit();
+	if (!isNotLimited.success) {
+		return {
+			success: false,
+			message: isNotLimited.message,
 		};
 	}
 

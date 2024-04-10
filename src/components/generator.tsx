@@ -54,7 +54,6 @@ const Generator = () => {
 				setResult(resultImg);
 				console.log(resultImg);
 			} else {
-				alert("Failed to generate image");
 				toast.error(resultImg.message);
 			}
 		});

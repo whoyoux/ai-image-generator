@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { signUp } from "@/actions/auth.action";
+import LoadingSpinner from "@/components/loading-spinner";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -19,9 +20,11 @@ import { Input } from "@/components/ui/input";
 import { SignUpSchema } from "@/schemas";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 
 const SignUpForm = () => {
+	const [isPending, startAuth] = useState(false);
 	const router = useRouter();
 
 	const form = useForm<z.infer<typeof SignUpSchema>>({
@@ -33,6 +36,7 @@ const SignUpForm = () => {
 
 	async function onSubmit(values: z.infer<typeof SignUpSchema>) {
 		try {
+			startAuth(true);
 			const res = await signUp(values);
 			if (res.success) {
 				toast.success(res.message);
@@ -43,6 +47,8 @@ const SignUpForm = () => {
 		} catch (err) {
 			// alert(err);
 			toast.error(String(err));
+		} finally {
+			startAuth(false);
 		}
 	}
 	return (
@@ -110,7 +116,13 @@ const SignUpForm = () => {
 						<span className="text-primary">Terms of Service</span>
 					</Link>
 				</p>
-				<Button type="submit">Sign up</Button>
+				<Button
+					type="submit"
+					disabled={isPending}
+					className="flex items-center gap-2"
+				>
+					{isPending && <LoadingSpinner />} Sign up
+				</Button>
 				<div className="flex items-center">
 					You have an account?
 					<Link href="/sign-in">

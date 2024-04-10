@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { signIn } from "@/actions/auth.action";
+import LoadingSpinner from "@/components/loading-spinner";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -19,9 +20,11 @@ import { Input } from "@/components/ui/input";
 import { SignInSchema } from "@/schemas";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 
 const SignInForm = () => {
+	const [isPending, startAuth] = useState(false);
 	const router = useRouter();
 
 	const form = useForm<z.infer<typeof SignInSchema>>({
@@ -34,6 +37,7 @@ const SignInForm = () => {
 
 	async function onSubmit(values: z.infer<typeof SignInSchema>) {
 		try {
+			startAuth(true);
 			const res = await signIn(values);
 			if (res.success) {
 				toast.success(res.message);
@@ -44,6 +48,8 @@ const SignInForm = () => {
 		} catch (err) {
 			// alert(err);
 			toast.error(String(err));
+		} finally {
+			startAuth(false);
 		}
 	}
 	return (
@@ -79,7 +85,13 @@ const SignInForm = () => {
 						</FormItem>
 					)}
 				/>
-				<Button type="submit">Sign in</Button>
+				<Button
+					type="submit"
+					disabled={isPending}
+					className="flex items-center gap-2"
+				>
+					{isPending && <LoadingSpinner />} Sign in
+				</Button>
 				<div className="flex items-center">
 					You dont have an account?
 					<Link href="/sign-up">

@@ -13,6 +13,7 @@ import { TimeSpan, createDate, isWithinExpirationDate } from "oslo";
 
 import { resend } from "@/lib/resend";
 import { addStripeCustomer } from "@/lib/stripe";
+import { checkRateLimit } from "@/lib/upstash";
 import { getBaseUrl } from "@/lib/utils";
 
 type SignResponse =
@@ -37,6 +38,14 @@ export const signUp = async (
 			return {
 				success: false,
 				message: "Invalid form values",
+			};
+		}
+
+		const isNotLimited = await checkRateLimit();
+		if (!isNotLimited.success) {
+			return {
+				success: false,
+				message: isNotLimited.message,
 			};
 		}
 
@@ -125,6 +134,14 @@ export const signIn = async (
 		};
 	}
 
+	const isNotLimited = await checkRateLimit();
+	if (!isNotLimited.success) {
+		return {
+			success: false,
+			message: isNotLimited.message,
+		};
+	}
+
 	const existingUser = await prisma.user.findFirst({
 		where: {
 			username: parsed.data.username,
@@ -183,6 +200,11 @@ export const signIn = async (
 
 export const signOut = async () => {
 	try {
+		const isNotLimited = await checkRateLimit();
+		if (!isNotLimited.success) {
+			throw new Error(isNotLimited.message);
+		}
+
 		const { session } = await validateRequest();
 
 		if (!session) {
@@ -200,7 +222,7 @@ export const signOut = async () => {
 		);
 	} catch (err) {
 		throw new Error(
-			"Some error occurred while signing out. Please try again later.",
+			`Some error occurred while signing out. Please try again later. ${err}`,
 		);
 	}
 };
@@ -210,6 +232,14 @@ export const verifyEmail = async (token: string) => {
 		return {
 			success: false,
 			message: "Invalid token",
+		};
+	}
+
+	const isNotLimited = await checkRateLimit();
+	if (!isNotLimited.success) {
+		return {
+			success: false,
+			message: isNotLimited.message,
 		};
 	}
 

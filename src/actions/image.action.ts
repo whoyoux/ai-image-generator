@@ -5,7 +5,7 @@ import { PromptSchema } from "@/schemas";
 import { z } from "zod";
 
 import { generateImageBase64 } from "@/lib/ai";
-import { getUser } from "@/lib/utils";
+import { checkRateLimit } from "@/lib/upstash";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 import sharp from "sharp";
@@ -33,6 +33,14 @@ export const generateImage = async (
 			return {
 				success: false,
 				message: "Unauthorized",
+			} satisfies ImageGenerationResult;
+		}
+
+		const isNotLimited = await checkRateLimit();
+		if (!isNotLimited.success) {
+			return {
+				success: false,
+				message: isNotLimited.message,
 			} satisfies ImageGenerationResult;
 		}
 
