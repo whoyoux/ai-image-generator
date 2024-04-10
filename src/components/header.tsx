@@ -26,6 +26,10 @@ const Header = async () => {
 				<h1 className="text-lg md:text-xl font-semibold">Ai Image Generator</h1>
 			</Link>
 			<div className="flex items-center gap-4">
+				{/* <div className="flex items-center">
+					<Button variant="link">Text To Image</Button>
+					<Button variant="link">Text To Voice</Button>
+				</div> */}
 				{user ? (
 					<div className="flex items-center gap-4">
 						<Link href="/billing">

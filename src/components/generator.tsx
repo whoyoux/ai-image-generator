@@ -31,6 +31,8 @@ import {
 } from "@/components/ui/select";
 import { PromptSchema, StyleEnum } from "@/schemas";
 import Image from "next/image";
+import Link from "next/link";
+import LoadingSpinner from "./loading-spinner";
 
 export const runtime = "edge";
 
@@ -111,7 +113,13 @@ const Generator = () => {
 					/>
 
 					<div className="flex flex-col items-start gap-1">
-						<Button type="submit" disabled={isPending}>
+						<Button
+							type="submit"
+							disabled={isPending}
+							size="lg"
+							className="flex items-center gap-2"
+						>
+							{isPending && <LoadingSpinner />}
 							Start generating
 						</Button>
 						<span className="text-sm text-muted-foreground">
@@ -159,6 +167,13 @@ const Generator = () => {
 						</>
 					)}
 				</div>
+				<p className="mt-2 text-sm text-muted-foreground">
+					All your images are saved on servers. You can see them on{" "}
+					<Link href="/dashboard" className="underline underline-offset-4">
+						your dashboard
+					</Link>
+					.
+				</p>
 			</div>
 		</div>
 	);
