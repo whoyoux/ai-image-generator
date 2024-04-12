@@ -11,10 +11,12 @@ import { Argon2id } from "oslo/password";
 import prisma from "@/lib/db";
 import { TimeSpan, createDate, isWithinExpirationDate } from "oslo";
 
+import { google } from "@/lib/oauth";
 import { resend } from "@/lib/resend";
 import { addStripeCustomer } from "@/lib/stripe";
 import { checkRateLimit } from "@/lib/upstash";
 import { getBaseUrl } from "@/lib/utils";
+import { generateCodeVerifier, generateState } from "arctic";
 
 type SignResponse =
 	| {
@@ -142,9 +144,9 @@ export const signIn = async (
 		};
 	}
 
-	const existingUser = await prisma.user.findFirst({
+	const existingUser = await prisma.user.findUnique({
 		where: {
-			username: parsed.data.username,
+			email: parsed.data.email,
 		},
 	});
 
@@ -152,7 +154,15 @@ export const signIn = async (
 		// throw new Error("User does not exist");
 		return {
 			success: false,
-			message: "Invalid username or password",
+			message: "Invalid email or password",
+		};
+	}
+
+	if (existingUser.accountCreatedByOauth) {
+		return {
+			success: false,
+			message:
+				"Account created by 3rd party provider. Please sign in with Google.",
 		};
 	}
 
@@ -161,6 +171,13 @@ export const signIn = async (
 		return {
 			success: false,
 			message: "Email not verified. Please verify your email.",
+		};
+	}
+
+	if (!existingUser.hashedPassword) {
+		return {
+			success: false,
+			message: "Invalid email or password",
 		};
 	}
 
@@ -173,7 +190,7 @@ export const signIn = async (
 		// throw new Error("Invalid username or password");
 		return {
 			success: false,
-			message: "Invalid username or password",
+			message: "Invalid email or password",
 		};
 	}
 
@@ -327,3 +344,48 @@ export async function createEmailVerificationToken(
 	});
 	return tokenId;
 }
+
+export const createGoogleAuthorizationURL = async () => {
+	try {
+		const isNotLimited = await checkRateLimit();
+		if (!isNotLimited.success) {
+			return {
+				success: false,
+				message: isNotLimited.message,
+			};
+		}
+
+		const state = generateState();
+		const codeVerifier = generateCodeVerifier();
+
+		cookies().set("codeVerifier", codeVerifier, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: "lax",
+			maxAge: 60 * 10,
+		});
+
+		cookies().set("state", state, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: "lax",
+			maxAge: 60 * 10,
+		});
+
+		const authorizationUrl = await google.createAuthorizationURL(
+			state,
+			codeVerifier,
+			{ scopes: ["email", "profile"] },
+		);
+
+		return {
+			success: true,
+			data: authorizationUrl.toString(),
+		};
+	} catch (err) {
+		return {
+			success: false,
+			message: err,
+		};
+	}
+};

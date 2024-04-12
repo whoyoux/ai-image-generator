@@ -32,6 +32,7 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
+import { APP_NAME } from "@/config";
 import { cn } from "@/lib/utils";
 
 const HEADER_ITEMS = [
@@ -51,7 +52,7 @@ const Header = async () => {
 	return (
 		<header className="w-full flex items-center justify-between px-4 md:px-8 py-6 border-b mb-10">
 			<Link href="/">
-				<h1 className="text-lg md:text-xl font-semibold">Ai Image Generator</h1>
+				<h1 className="text-lg md:text-xl font-semibold">{APP_NAME}</h1>
 			</Link>
 			<div className="flex items-center gap-4">
 				<div className="hidden lg:flex items-center">

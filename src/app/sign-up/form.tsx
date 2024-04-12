@@ -6,7 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { signUp } from "@/actions/auth.action";
+import GoogleIcon from "@/components/google-icon";
 import LoadingSpinner from "@/components/loading-spinner";
+import SignWithGoogle from "@/components/sign-with-google";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -123,8 +125,23 @@ const SignUpForm = () => {
 				>
 					{isPending && <LoadingSpinner />} Sign up
 				</Button>
-				<div className="flex items-center">
-					You have an account?
+
+				<div className="relative">
+					<div className="absolute inset-0 flex items-center">
+						<span className="w-full border-t" />
+					</div>
+					<div className="relative flex justify-center text-xs uppercase">
+						<span className="bg-background px-2 text-muted-foreground">
+							Or continue with
+						</span>
+					</div>
+				</div>
+				<div>
+					<SignWithGoogle />
+				</div>
+
+				<div className="flex items-center gap-2">
+					<div className="flex items-center">You have an account?</div>
 					<Link href="/sign-in">
 						<Button variant="link">Sign in</Button>
 					</Link>

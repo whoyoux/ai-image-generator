@@ -11,7 +11,7 @@ export const SignUpSchema = z
 		username: z
 			.string()
 			.min(4, { message: "Minimum 4 characters!" })
-			.max(20, { message: "Maximum 20 characters!" }),
+			.max(100, { message: "Maximum 20 characters!" }),
 		password: z
 			.string()
 			.min(8, { message: "Minimum 8 characters!" })
@@ -27,10 +27,11 @@ export const SignUpSchema = z
 	});
 
 export const SignInSchema = z.object({
-	username: z
+	email: z
 		.string()
+		.email()
 		.min(4, { message: "Minimum 4 characters!" })
-		.max(20, { message: "Maximum 20 characters!" }),
+		.max(100, { message: "Maximum 20 characters!" }),
 	password: z
 		.string()
 		.min(8, { message: "Minimum 8 characters!" })

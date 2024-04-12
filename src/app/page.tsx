@@ -90,6 +90,7 @@ export default async function Home() {
 								className="rounded-lg"
 								fill
 								sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+								loading="eager"
 							/>
 						</div>
 					))}
@@ -117,12 +118,12 @@ const Section = ({
 	isReversed = false,
 }: SectionProps) => {
 	return (
-		<section className="max-w-screen-lg mx-auto w-full flex flex-col items-center justify-start gap-12">
+		<section className="max-w-screen-lg mx-auto w-full flex flex-col lg:items-center justify-start gap-12">
 			<h2 className="text-2xl md:text-4xl font-semibold">{title}</h2>
 			<div
 				className={cn(
-					"flex flex-col gap-8 items-center",
-					isReversed ? "lg:flex-row-reverse" : "lg:flex-row ",
+					"flex flex-col gap-8",
+					isReversed ? "lg:flex-row-reverse" : "lg:flex-row lg:items-center",
 				)}
 			>
 				{withImage && image && altImage && (

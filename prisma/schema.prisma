@@ -21,6 +21,21 @@ enum PLANS {
   PRO
 }
 
+model OauthAccount {
+  id             String   @id @default(cuid())
+  provider       String
+  providerUserId String   @map("provider_user_id")
+  accessToken    String
+  refreshToken   String?
+  expiresAt      DateTime @map("expires_at")
+
+  userId String @unique @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
 model User {
   id       String    @id
   sessions Session[]
@@ -29,7 +44,7 @@ model User {
   emailVerified Boolean @default(false) @map("email_verified")
 
   username       String
-  hashedPassword String @map("hashed_password")
+  hashedPassword String? @map("hashed_password")
 
   credits  Int      @default(5)
   images   Image[]
@@ -42,6 +57,9 @@ model User {
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  oauthAccount          OauthAccount?
+  accountCreatedByOauth Boolean       @default(false) @map("account_created_by_oauth")
 }
 
 model Order {
