@@ -123,7 +123,7 @@ const Section = ({
 			<div
 				className={cn(
 					"flex flex-col gap-8",
-					isReversed ? "lg:flex-row-reverse" : "lg:flex-row lg:items-center",
+					isReversed ? "lg:flex-row-reverse" : "lg:flex-row",
 				)}
 			>
 				{withImage && image && altImage && (
