@@ -9,7 +9,7 @@ import notebookImg from "@/assets/images/notebook.png";
 import processImg from "@/assets/images/process.png";
 import speakingImg from "@/assets/images/speaking.png";
 
-export const revalidate = 60 * 60; // 1 hour;
+export const revalidate = 1200; // 1 hour;
 
 export default async function Home() {
 	const images = await prisma.image.findMany({

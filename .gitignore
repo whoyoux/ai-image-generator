@@ -43,3 +43,5 @@ Dockerfile
 docker-compose.yml
 docker-compose.yml
 docker-compose.yml
+/.idea
+qodana.yaml

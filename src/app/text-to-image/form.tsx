@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 
-import { Textarea } from "../../components/ui/textarea";
+import { Textarea } from "@/components/ui/textarea";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
