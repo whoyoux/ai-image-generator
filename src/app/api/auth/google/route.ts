@@ -213,7 +213,7 @@ export const GET = async (req: NextRequest) => {
 	// 		status: 400,
 	// 	},
 	// );
-	return new Response(null, {
+	return new Response(res.message, {
 		status: 400,
 	});
 };

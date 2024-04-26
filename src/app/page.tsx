@@ -8,24 +8,12 @@ import crashImg from "@/assets/images/crash.png";
 import notebookImg from "@/assets/images/notebook.png";
 import processImg from "@/assets/images/process.png";
 import speakingImg from "@/assets/images/speaking.png";
+import { getImages } from "@/lib/db-queries";
 
-export const revalidate = 1200; // 1 hour;
+export const revalidate = 60 * 60;
 
 export default async function Home() {
-	const images = await prisma.image.findMany({
-		where: {
-			isPublic: true,
-		},
-		orderBy: {
-			createdAt: "desc",
-		},
-		take: 6,
-		select: {
-			id: true,
-			imageUrl: true,
-			prompt: true,
-		},
-	});
+	const images = await getImages();
 
 	return (
 		<div className="flex flex-col gap-36 pb-36">
@@ -109,6 +97,43 @@ type SectionProps = {
 	isReversed?: boolean;
 };
 
+// const Section = ({
+// 	title,
+// 	paragraph,
+// 	withImage = true,
+// 	image,
+// 	altImage,
+// 	isReversed = false,
+// }: SectionProps) => {
+// 	return (
+// 		<section className="max-w-screen-lg mx-auto w-full flex flex-col lg:items-center justify-start gap-12">
+// 			<h2 className="text-2xl md:text-4xl font-semibold">{title}</h2>
+// 			<div
+// 				className={cn(
+// 					"flex flex-col gap-8",
+// 					isReversed ? "lg:flex-row-reverse" : "lg:flex-row",
+// 				)}
+// 			>
+// 				{withImage && image && altImage && (
+// 					<div className="w-full aspect-square relative max-w-[400px] flex-1 mx-auto">
+// 						<Image
+// 							src={image}
+// 							fill
+// 							alt={altImage}
+// 							sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+// 							className="rounded-lg"
+// 							placeholder="blur"
+// 						/>
+// 					</div>
+// 				)}
+// 				<p className="text-xl md:text-2xl text-card-foreground flex-1">
+// 					{paragraph}
+// 				</p>
+// 			</div>
+// 		</section>
+// 	);
+// };
+
 const Section = ({
 	title,
 	paragraph,
@@ -118,29 +143,27 @@ const Section = ({
 	isReversed = false,
 }: SectionProps) => {
 	return (
-		<section className="max-w-screen-lg mx-auto w-full flex flex-col lg:items-center justify-start gap-12">
-			<h2 className="text-2xl md:text-4xl font-semibold">{title}</h2>
-			<div
-				className={cn(
-					"flex flex-col gap-8",
-					isReversed ? "lg:flex-row-reverse" : "lg:flex-row",
-				)}
-			>
-				{withImage && image && altImage && (
-					<div className="w-full aspect-square relative max-w-[400px] flex-1 mx-auto">
-						<Image
-							src={image}
-							fill
-							alt={altImage}
-							sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-							className="rounded-lg"
-							placeholder="blur"
-						/>
-					</div>
-				)}
-				<p className="text-xl md:text-2xl text-card-foreground flex-1">
-					{paragraph}
-				</p>
+		<section
+			className={cn(
+				"max-w-screen-lg mx-auto w-full flex flex-col lg:items-center justify-start gap-12",
+				isReversed ? "lg:flex-row-reverse" : "lg:flex-row",
+			)}
+		>
+			{withImage && image && altImage && (
+				<div className="w-full aspect-square relative lg:max-w-[400px] flex-1 mx-auto">
+					<Image
+						src={image}
+						fill
+						alt={altImage}
+						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+						className="rounded-lg"
+						placeholder="blur"
+					/>
+				</div>
+			)}
+			<div className="flex-1 flex flex-col gap-8">
+				<h2 className="text-2xl md:text-3xl font-semibold">{title}</h2>
+				<p className="text-lg md:text-xl text-muted-foreground">{paragraph}</p>
 			</div>
 		</section>
 	);

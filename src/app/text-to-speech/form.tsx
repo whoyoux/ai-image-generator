@@ -38,6 +38,7 @@ import {
 	SpeechGeneratorPromptSchema,
 	SpeechVoicesEnum,
 } from "@/schemas";
+import posthog from "posthog-js";
 
 const TextToSpeechForm = () => {
 	const [isPending, startTransition] = useTransition();
@@ -59,10 +60,14 @@ const TextToSpeechForm = () => {
 			const resultSpeech = await generateSpeech(data);
 			if (resultSpeech.success) {
 				toast.success(resultSpeech.message);
+				posthog.capture("speech_generated_successfully");
 				setResult(resultSpeech);
 				console.log(resultSpeech);
 			} else {
 				toast.error(resultSpeech.message);
+				posthog.capture("speech_generated_error", {
+					error: resultSpeech.message,
+				});
 			}
 		});
 	}

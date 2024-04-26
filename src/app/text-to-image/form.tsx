@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import { Textarea } from "@/components/ui/textarea";
 
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/form";
 
 import { generateImage } from "@/actions/image.action";
+import { Input } from "@/components/ui/input";
 import {
 	Select,
 	SelectContent,
@@ -32,9 +33,11 @@ import {
 import { ImageGeneratorPromptSchema, StyleEnum } from "@/schemas";
 import Image from "next/image";
 import Link from "next/link";
+import posthog from "posthog-js";
 import LoadingSpinner from "../../components/loading-spinner";
 
 const TextToImageForm = () => {
+	const [isEnabledCustomStyle, setIsEnabledCustomStyle] = useState(false);
 	const [isPending, startTransition] = useTransition();
 	const [result, setResult] = useState<Awaited<
 		ReturnType<typeof generateImage>
@@ -51,10 +54,12 @@ const TextToImageForm = () => {
 			const resultImg = await generateImage(data);
 			if (resultImg.success) {
 				toast.success("Image generated successfully");
+				posthog.capture("image_generated_successfully");
 				setResult(resultImg);
 				console.log(resultImg);
 			} else {
 				toast.error(resultImg.message);
+				posthog.capture("image_generated_error", { error: resultImg.message });
 			}
 		});
 	}
@@ -88,7 +93,10 @@ const TextToImageForm = () => {
 							<FormItem>
 								<FormLabel>Style</FormLabel>
 								<Select
-									onValueChange={field.onChange}
+									onValueChange={(e) => {
+										setIsEnabledCustomStyle(e === "custom");
+										field.onChange(e);
+									}}
 									defaultValue={field.value}
 								>
 									<FormControl>
@@ -109,6 +117,31 @@ const TextToImageForm = () => {
 							</FormItem>
 						)}
 					/>
+
+					{isEnabledCustomStyle && (
+						<FormField
+							control={form.control}
+							name="customStyle"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Custom style</FormLabel>
+
+									<FormControl>
+										<Input
+											{...field}
+											disabled={!isEnabledCustomStyle}
+											placeholder="dark fantasy"
+										/>
+									</FormControl>
+
+									<FormDescription>
+										Type only style like ones in the list.
+									</FormDescription>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					)}
 
 					<div className="flex flex-col items-start gap-1">
 						<Button

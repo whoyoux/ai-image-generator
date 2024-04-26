@@ -8,6 +8,7 @@ import { generateImageBase64 } from "@/lib/ai";
 import { checkRateLimit } from "@/lib/upstash";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
+import { BadRequestError } from "openai";
 import sharp from "sharp";
 import { UTApi } from "uploadthing/server";
 
@@ -35,7 +36,7 @@ export const generateImage = async (
 			return {
 				success: false,
 				message: "Unauthorized",
-			} satisfies ImageGenerationResult;
+			};
 		}
 
 		const isNotLimited = await checkRateLimit();
@@ -43,7 +44,7 @@ export const generateImage = async (
 			return {
 				success: false,
 				message: isNotLimited.message,
-			} satisfies ImageGenerationResult;
+			};
 		}
 
 		const { user } = await validateRequest();
@@ -52,10 +53,10 @@ export const generateImage = async (
 			return {
 				success: false,
 				message: "Unauthorized",
-			} satisfies ImageGenerationResult;
+			};
 		}
 
-		const res = await prisma.$transaction(
+		const res: ImageGenerationResult = await prisma.$transaction(
 			async (tx) => {
 				const foundUser = await tx.user.findUnique({
 					where: {
@@ -67,14 +68,14 @@ export const generateImage = async (
 					return {
 						success: false,
 						message: "User not found",
-					} satisfies ImageGenerationResult;
+					};
 				}
 
 				if (foundUser.credits < CREDIT_PER_IMAGE_GENERATE) {
 					return {
 						success: false,
 						message: "Not enough credits",
-					} satisfies ImageGenerationResult;
+					};
 				}
 
 				console.log("Started generating image.");
@@ -83,6 +84,7 @@ export const generateImage = async (
 					user.id,
 					parsed.data.prompt,
 					parsed.data.style,
+					parsed.data.customStyle,
 				);
 
 				console.log("Finished generating image.");
@@ -91,7 +93,7 @@ export const generateImage = async (
 					return {
 						success: false,
 						message: "Failed to generate image",
-					} satisfies ImageGenerationResult;
+					};
 
 				console.log("Started compressing image.");
 
@@ -111,7 +113,7 @@ export const generateImage = async (
 					return {
 						success: false,
 						message: "Failed to upload image",
-					} satisfies ImageGenerationResult;
+					};
 
 				await tx.user.update({
 					where: {
@@ -128,6 +130,10 @@ export const generateImage = async (
 								style: parsed.data.style,
 								revisedPrompt:
 									image.data[0].revised_prompt ?? parsed.data.prompt,
+								customStyle:
+									parsed.data.style === "custom"
+										? parsed.data.customStyle
+										: null,
 							},
 						},
 					},
@@ -136,7 +142,7 @@ export const generateImage = async (
 				return {
 					success: true,
 					imgUrl: response.data.url,
-				} satisfies ImageGenerationResult;
+				};
 			},
 			{
 				timeout: 300000, // 5 minutes
@@ -147,10 +153,17 @@ export const generateImage = async (
 		return res;
 	} catch (err) {
 		console.error(err);
+		if (err instanceof BadRequestError) {
+			return {
+				success: false,
+				message: err.message,
+			};
+		}
+
 		return {
 			success: false,
 			message: "Unexpected error. Please try again later.",
-		} satisfies ImageGenerationResult;
+		};
 	}
 };
 

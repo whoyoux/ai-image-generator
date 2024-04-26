@@ -1,3 +1,5 @@
+import "server-only";
+
 import { Google } from "arctic";
 import { getBaseUrl } from "./utils";
 

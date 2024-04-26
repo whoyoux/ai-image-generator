@@ -1,6 +1,7 @@
 "use server";
 import { validateRequest } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { posthog } from "@/lib/posthog";
 import { stripe } from "@/lib/stripe";
 import { checkRateLimit } from "@/lib/upstash";
 import { getBaseUrl } from "@/lib/utils";
@@ -61,6 +62,14 @@ export const checkout = async (
 			message: "Unauthorized",
 		};
 	}
+
+	posthog.capture({
+		event: "checkout_page_started",
+		distinctId: user.id,
+		properties: {
+			plan: parsedFormData.data.plan,
+		},
+	});
 
 	const newOrder = await prisma.order.create({
 		data: {

@@ -1,7 +1,7 @@
 import { signOut } from "@/actions/auth.action";
 import { validateRequest } from "@/lib/auth";
 import Link from "next/link";
-import React from "react";
+import React, { Suspense } from "react";
 import { ThemeSwitcher } from "./theme-switcher";
 import { Button } from "./ui/button";
 
@@ -62,21 +62,23 @@ const Header = async () => {
 						</Link>
 					))}
 				</div>
-				{user ? (
-					<div className="flex items-center gap-4">
-						<Link href="/billing">
-							<p className="hidden md:block text-sm text-muted-foreground hover:underline underline-offset-4">
-								You have <span className="text-primary">{user.credits}</span>{" "}
-								credits left
-							</p>
+				<Suspense fallback={<Button disabled>Sign in</Button>}>
+					{user ? (
+						<div className="flex items-center gap-4">
+							<Link href="/billing">
+								<p className="hidden md:block text-sm text-muted-foreground hover:underline underline-offset-4">
+									You have <span className="text-primary">{user.credits}</span>{" "}
+									credits left
+								</p>
+							</Link>
+							<UserDropdown username={user.username} />
+						</div>
+					) : (
+						<Link href="/sign-in">
+							<Button>Sign in</Button>
 						</Link>
-						<UserDropdown username={user.username} />
-					</div>
-				) : (
-					<Link href="/sign-in">
-						<Button>Sign in</Button>
-					</Link>
-				)}
+					)}
+				</Suspense>
 				<MobileSheet className="block lg:hidden" />
 				<ThemeSwitcher className="hidden lg:block" />
 			</div>

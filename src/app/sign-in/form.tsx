@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { SignInSchema } from "@/schemas";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import posthog from "posthog-js";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -43,7 +44,10 @@ const SignInForm = () => {
 			const res = await signIn(values);
 			if (res.success) {
 				toast.success(res.message);
+				const ddd = posthog.capture("sign_in_success", { method: "email" });
+				console.log(ddd);
 				router.push("/");
+				router.refresh();
 			} else {
 				toast.error(res.message);
 			}

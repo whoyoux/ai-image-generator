@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { signUp } from "@/actions/auth.action";
-import GoogleIcon from "@/components/google-icon";
 import LoadingSpinner from "@/components/loading-spinner";
 import SignWithGoogle from "@/components/sign-with-google";
 import { Button } from "@/components/ui/button";
@@ -22,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { SignUpSchema } from "@/schemas";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import posthog from "posthog-js";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -41,13 +41,22 @@ const SignUpForm = () => {
 			startAuth(true);
 			const res = await signUp(values);
 			if (res.success) {
+				posthog.capture("sign_up_success", { method: "email" });
 				toast.success(res.message);
 				router.push("/");
 			} else {
+				posthog.capture("sign_up_error", {
+					method: "email",
+					error: res.message,
+				});
 				toast.error(res.message);
 			}
 		} catch (err) {
 			// alert(err);
+			posthog.capture("sign_up_error", {
+				method: "email",
+				error: String(err),
+			});
 			toast.error(String(err));
 		} finally {
 			startAuth(false);

@@ -1,11 +1,17 @@
 import { checkout } from "@/actions/payments.action";
 import { Button } from "@/components/ui/button";
 import { validateRequest } from "@/lib/auth";
+import { posthog } from "@/lib/posthog";
 import { PLANS } from "@prisma/client";
 
 const BillingPage = async () => {
 	const { user } = await validateRequest();
 	const isLoggedIn = !!user;
+
+	posthog.capture({
+		event: "billing_page_viewed",
+		distinctId: user?.id ?? "anonymous",
+	});
 	return (
 		<div className="max-w-screen-lg mx-auto">
 			<div className="">

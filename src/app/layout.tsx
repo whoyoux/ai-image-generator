@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 
 import Footer from "@/components/footer";
 import Header from "@/components/header";
+import { PHProvider } from "@/components/posthog-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const fontSans = FontSans({
@@ -26,28 +27,30 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" suppressHydrationWarning>
-			<body
-				className={cn(
-					"min-h-screen bg-background font-sans antialiased",
-					fontSans.variable,
-				)}
-			>
-				<ThemeProvider
-					attribute="class"
-					defaultTheme="system"
-					enableSystem
-					disableTransitionOnChange
+			<PHProvider>
+				<body
+					className={cn(
+						"min-h-screen bg-background font-sans antialiased",
+						fontSans.variable,
+					)}
 				>
-					<div className="flex flex-col min-h-screen justify-between">
-						<div className="flex flex-col">
-							<Header />
-							<main className="px-4 md:px-8">{children}</main>
+					<ThemeProvider
+						attribute="class"
+						defaultTheme="system"
+						enableSystem
+						disableTransitionOnChange
+					>
+						<div className="flex flex-col min-h-screen justify-between">
+							<div className="flex flex-col">
+								<Header />
+								<main className="px-4 md:px-8">{children}</main>
+							</div>
+							<Footer />
 						</div>
-						<Footer />
-					</div>
-					<Toaster richColors />
-				</ThemeProvider>
-			</body>
+						<Toaster richColors />
+					</ThemeProvider>
+				</body>
+			</PHProvider>
 		</html>
 	);
 }

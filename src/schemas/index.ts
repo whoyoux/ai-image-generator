@@ -63,15 +63,30 @@ export const StyleEnum = z.enum([
 	"abstract",
 	"art deco",
 	"anime",
+	"custom",
 ]);
 
-export const ImageGeneratorPromptSchema = z.object({
-	prompt: z
-		.string()
-		.min(4, { message: "Minimum 4 characters!" })
-		.max(1000, { message: "Maximum 1000 characters!" }),
-	style: StyleEnum,
-});
+export const ImageGeneratorPromptSchema = z
+	.object({
+		prompt: z
+			.string()
+			.min(4, { message: "Minimum 4 characters!" })
+			.max(1000, { message: "Maximum 1000 characters!" }),
+		style: StyleEnum,
+		customStyle: z.string().optional(),
+	})
+	.refine(
+		(data) => {
+			if (data.style === "custom" && !data.customStyle) {
+				return false;
+			}
+			return true;
+		},
+		{
+			message: "You selected custom style but did not provide a custom style!",
+			path: ["style"],
+		},
+	);
 
 export const SpeechVoicesEnum = z.enum([
 	"alloy",
