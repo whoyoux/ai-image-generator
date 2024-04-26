@@ -22,4 +22,5 @@ Live site: [ai.whx.world](https://ai.whx.world/)
  - [X]  User can generate speech from their text with different voices
  - [X]  User dashboard where users can see their generated assets
  - [X]  User can buy more credits
+ - [X]  User can provide custom style
  - [ ]  User can create variants of their image
