@@ -2,7 +2,7 @@
 import { validateRequest } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { ImageGeneratorPromptSchema } from "@/schemas";
-import { z } from "zod";
+import type { z } from "zod";
 
 import { generateImageBase64 } from "@/lib/ai";
 import { checkRateLimit } from "@/lib/upstash";
