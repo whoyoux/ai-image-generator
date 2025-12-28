@@ -80,7 +80,9 @@ const Card = ({
 	plan: PLANS;
 }) => {
 	return (
-		<form className="flex flex-col border rounded-lg" action={checkout}>
+		<form className="flex flex-col border rounded-lg" action={async (formData) => {
+			await checkout(formData);
+		}}>
 			<div className="flex-1 grid items-center justify-center p-6">
 				<div className="space-y-3 text-center">
 					<h3 className="text-xl font-bold">{label}</h3>
